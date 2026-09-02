@@ -1,5 +1,5 @@
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-const ONLINE_WINDOW_SECONDS = 90;
+const ONLINE_WINDOW_SECONDS = 300;
 
 // Memory fallback lets the Worker deploy before KV is configured.
 // For 24/7 reliability add a Workers KV binding named JARVIS_KV.
@@ -161,7 +161,7 @@ async function api(req, env, url) {
   const p = url.pathname;
 
   if (p === "/api/health" && req.method === "GET") {
-    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.4-cf-room-stable", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
+    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.5-cf-pc-access", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
       owner_password: Boolean(env.JARVIS_OWNER_PASSWORD), device_token: Boolean(env.JARVIS_DEVICE_TOKEN), pc_token: Boolean(env.JARVIS_PC_TOKEN)
     }});
   }
@@ -208,10 +208,19 @@ async function api(req, env, url) {
       for (const [a,v] of acts) queued.push(await setRoomCommand(env, a, v));
       return j({ok:true,reply:msg,route:"cloud-room",queued:queued.map(x=>x.id)});
     }
-    await queuePush(env, "pc", {id:rand(8),text,ts:now()});
+    const cmd = {id:rand(8),text,ts:now()};
+    await queuePush(env, "pc", cmd);
     const pc = await getPcState(env), online = Boolean(now() - Number(pc.last_seen || 0) < ONLINE_WINDOW_SECONDS);
-    if (!online) return j({ok:true,reply:"Home PC is offline. Smart-room commands still work.",route:"pc-offline"});
-    return j({ok:true,reply:"Sent to your home PC.",route:"pc"});
+    // Never block remote PC access purely because Workers KV can return a stale heartbeat
+    // from another Cloudflare edge. The PC agent is the authority: if it is running,
+    // it will poll and execute this command.
+    return j({
+      ok:true,
+      reply: online ? "Sent to your home PC." : "Sent to your home PC queue. Waiting for the PC agent.",
+      route:"pc",
+      command_id:cmd.id,
+      pc_status_hint:online ? "online" : "unknown"
+    });
   }
 
   if (p === "/api/device/poll" && req.method === "GET") {
@@ -238,6 +247,17 @@ async function api(req, env, url) {
     await ackRoomCommand(env, "light", String(b.ack_light_id || ""));
     await ackRoomCommand(env, "fan", String(b.ack_fan_id || ""));
     return j({ok:true});
+  }
+
+  if (p === "/api/pc/heartbeat" && req.method === "POST") {
+    if (!pcAuth(req, env)) return j({ok:false,error:"Unauthorized"},401);
+    const st = await getPcState(env);
+    st.online = true; st.last_seen = now();
+    const b = await bodyJson(req);
+    if (b && b.name) st.name = String(b.name).slice(0,80);
+    if (b && b.jarvis_running !== undefined) st.jarvis_running = Boolean(b.jarvis_running);
+    await putPcState(env, st);
+    return j({ok:true,last_seen:st.last_seen});
   }
 
   if (p === "/api/pc/poll" && req.method === "GET") {
