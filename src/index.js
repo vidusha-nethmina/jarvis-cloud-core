@@ -134,7 +134,7 @@ async function api(req, env, url) {
   const p = url.pathname;
 
   if (p === "/api/health" && req.method === "GET") {
-    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.1-cf", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
+    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.3-cf-no-face-wake", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
       owner_password: Boolean(env.JARVIS_OWNER_PASSWORD), device_token: Boolean(env.JARVIS_DEVICE_TOKEN), pc_token: Boolean(env.JARVIS_PC_TOKEN)
     }});
   }
