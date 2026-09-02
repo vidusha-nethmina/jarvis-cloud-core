@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070708">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>JARVIS Core</title>
+<style>
+:root{color-scheme:dark;--bg:#070708;--panel:#111214;--panel2:#17181b;--text:#f5f2ea;--muted:#9f9a8d;--gold:#e3bd5c;--gold2:#ffdf83;--line:#2c2a23;--ok:#71d7a2;--bad:#ff8585;--shadow:0 20px 70px #0009}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#2a2110 0,#0c0c0d 34%,#070708 68%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}body{padding-bottom:96px}.app{max-width:860px;margin:auto;padding:12px 12px 140px}.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:9px 4px;background:linear-gradient(#070708f7,#070708d8,#07070800);backdrop-filter:blur(9px)}.miniOrb{width:38px;height:38px;border-radius:50%;border:1px solid #66542a;box-shadow:0 0 20px #e3bd5c30}.title{font-weight:800;letter-spacing:.16em;font-size:13px}.status{font-size:11px;color:var(--muted);margin-top:3px}.ok{color:var(--ok)}.bad{color:var(--bad)}.hidden{display:none!important}.hero{display:grid;place-items:center;text-align:center;padding:14px 0 10px}.coreWrap{position:relative;width:180px;height:180px;display:grid;place-items:center}.coreWrap:before,.coreWrap:after{content:"";position:absolute;border-radius:50%;border:1px solid #8f7433;inset:12px;animation:pulse 3.6s ease-in-out infinite;opacity:.45}.coreWrap:after{inset:-2px;animation-delay:-1.8s;opacity:.16}.core{width:128px;height:128px;border-radius:50%;object-fit:cover;filter:drop-shadow(0 0 30px #e1b94a55)}@keyframes pulse{0%,100%{transform:scale(.96);opacity:.2}50%{transform:scale(1.08);opacity:.62}}.hero h1{margin:3px 0 4px;font-size:20px;letter-spacing:.14em}.hero p{margin:0;color:var(--muted);font-size:12px}.voiceState{margin-top:10px;display:flex;align-items:center;gap:7px;border:1px solid var(--line);padding:7px 10px;border-radius:999px;font-size:11px;color:var(--muted);background:#0e0e10}.dot{width:8px;height:8px;border-radius:50%;background:#65615a}.dot.live{background:var(--ok);box-shadow:0 0 12px #71d7a299}.tabs{position:sticky;top:56px;z-index:9;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 10px;padding:6px;background:#09090bd9;border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(12px)}.tab{min-height:38px;padding:8px 6px;border-radius:11px;border:0;background:transparent;color:var(--muted);font-size:12px}.tab.active{background:#2b2413;color:#ffe59e}.card{background:linear-gradient(180deg,#141518f7,#0f1012f7);border:1px solid var(--line);border-radius:20px;padding:14px;margin:9px 0;box-shadow:0 8px 40px #0003}.sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.sectionTitle strong{font-size:14px}.small{font-size:11px;color:var(--muted);line-height:1.45}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grow{flex:1}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}button,input,textarea{font:inherit}button{border:1px solid var(--line);background:#18191c;color:var(--text);border-radius:13px;min-height:44px;padding:10px 12px;cursor:pointer}button.primary{background:linear-gradient(#3b3119,#2a2415);border-color:#705c2d;color:#ffe7a0}button.good{border-color:#315e48;color:#bff7d7}button.danger{color:#ffb3b3}.switch{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0c0d0f;border:1px solid var(--line);border-radius:14px;padding:11px 12px}.switch input{width:44px;height:24px;accent-color:#d8b75b}.modebar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.statGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#0c0d0f;border:1px solid var(--line);padding:11px;border-radius:14px}.stat b{display:block;margin-top:4px;font-size:14px}.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.seg button{padding:8px 4px;min-height:40px}.chat{display:flex;flex-direction:column;gap:8px;min-height:240px;max-height:52vh;overflow:auto;padding:2px}.bubble{max-width:91%;padding:10px 12px;border-radius:15px;line-height:1.38;white-space:pre-wrap}.bubble.me{align-self:flex-end;background:#2a2514;border:1px solid #5e5028}.bubble.jarvis{align-self:flex-start;background:#17181b;border:1px solid #292b30}.meta{font-size:10px;color:var(--muted);margin-top:4px}.screen{width:100%;min-height:140px;max-height:520px;object-fit:contain;background:#050506;border:1px solid var(--line);border-radius:14px}.cameraWrap video{width:100%;max-height:430px;background:#000;border-radius:14px}.badge{display:inline-block;margin-bottom:7px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:10px;color:var(--muted)}input,textarea{width:100%;background:#0d0e10;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:12px;outline:none}.composer{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#09090beF;border-top:1px solid var(--line);backdrop-filter:blur(18px);padding:9px max(10px,env(safe-area-inset-right)) calc(9px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}.composerInner{max-width:860px;margin:auto;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.micToggle{width:48px;min-width:48px;height:48px;border-radius:50%;padding:0;font-size:19px}.micToggle.listening{background:#3a3017;border-color:#8e7432;box-shadow:0 0 18px #e3bd5c44}.composer textarea{min-height:48px;max-height:130px;resize:none}.send{width:52px;height:48px;padding:0}.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:50;display:none;max-width:90%;background:#17181b;border:1px solid var(--line);padding:10px 14px;border-radius:13px;box-shadow:var(--shadow)}.fileList{display:flex;flex-direction:column;gap:6px}.file{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:9px}.panelPage{display:none}.panelPage.active{display:block}@media(max-width:570px){.app{padding-left:9px;padding-right:9px}.coreWrap{width:150px;height:150px}.core{width:108px;height:108px}.hero{padding-top:4px}.tabs{top:54px}.tab{font-size:11px}.statGrid{grid-template-columns:1fr 1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.modebar{grid-template-columns:1fr}.composerInner{grid-template-columns:auto 1fr auto}.hideMobile{display:none}}@media(max-width:390px){.seg{grid-template-columns:repeat(2,1fr)}.statGrid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><img class="miniOrb" src="/golden_orb.png" alt="JARVIS"><div class="grow"><div class="title">JARVIS CORE</div><div class="status" id="status">Connecting…</div></div><button id="installBtn" class="hidden">Install</button></div>
+
+  <section class="card" id="pairCard">
+    <div class="sectionTitle"><strong>Connect this device</strong></div>
+    <div class="small">Use the 6-digit code shown on your home JARVIS PC, or sign in with your Global Access password.</div>
+    <div class="grid" style="margin-top:10px"><input id="pairCode" inputmode="numeric" maxlength="6" placeholder="6-digit pair code"><input id="deviceName" placeholder="Device name" value="My Device"></div>
+    <button class="primary" id="pairBtn" style="width:100%;margin-top:8px">Pair</button>
+    <input id="globalPassword" type="password" autocomplete="current-password" placeholder="Global JARVIS password" style="margin-top:12px">
+    <button id="globalLoginBtn" style="width:100%;margin-top:8px">Global Login</button>
+  </section>
+
+  <section class="card hidden" id="faceCard"><div class="sectionTitle"><strong>Owner verification</strong></div><div class="small">Front camera is used by default for owner verification.</div><div class="cameraWrap" style="margin-top:9px"><span class="badge" id="faceBadge">FRONT CAMERA</span><video id="faceCamera" autoplay playsinline muted></video></div><div class="row" style="margin-top:8px"><button class="primary grow" id="verifyFaceBtn">Verify owner</button><button id="switchFaceCameraBtn">Switch</button></div></section>
+
+  <div class="hidden" id="secureShell">
+    <div class="hero">
+      <div class="coreWrap"><img class="core" src="/golden_orb.png" alt="Golden Core"></div>
+      <h1>JARVIS</h1><p>Private AI · PC · Smart Room</p>
+      <div class="voiceState"><span class="dot" id="voiceDot"></span><span id="voiceState">Voice standby</span></div>
+    </div>
+
+    <nav class="tabs"><button class="tab active" data-tab="home">Home</button><button class="tab" data-tab="chat">Chat</button><button class="tab" data-tab="pc">PC</button><button class="tab" data-tab="more">More</button></nav>
+
+    <div class="panelPage active" data-page="home">
+      <section class="card" id="roomCard">
+        <div class="sectionTitle"><strong>Smart Home</strong><button id="refreshRoomBtn">Refresh</button></div>
+        <div class="statGrid"><div class="stat"><span class="small">ESP32</span><b id="roomOnline">Checking…</b></div><div class="stat"><span class="small">Light</span><b id="lightState">—</b></div><div class="stat"><span class="small">Fan</span><b id="fanState">—</b></div></div>
+        <div class="grid" style="margin-top:10px"><button class="good" data-room="light_on">Light ON</button><button data-room="light_off">Light OFF</button></div>
+        <div class="small" style="margin-top:10px">Light mode</div><div class="grid3" style="margin-top:6px"><button data-room="light_mode" data-value="1">Mode 1</button><button data-room="light_mode" data-value="2">Mode 2</button><button data-room="light_mode" data-value="3">Mode 3</button></div>
+        <div class="small" style="margin-top:10px">Fan speed</div><div class="seg"><button data-room="fan_off">OFF</button><button data-room="fan_speed" data-value="1">1</button><button data-room="fan_speed" data-value="2">2</button><button data-room="fan_speed" data-value="3">3</button></div>
+      </section>
+
+      <section class="card" id="conversationCard">
+        <div class="sectionTitle"><strong>Instant Voice</strong></div>
+        <div class="modebar"><label class="switch"><span>Always listening</span><input type="checkbox" id="alwaysListen"></label><label class="switch"><span>Voice replies</span><input type="checkbox" id="speakReplies" checked></label></div>
+        <div class="small" id="voiceHelp" style="margin-top:8px">Turn on once, then speak naturally. No hold-to-talk. On iPhone keep the PWA in the foreground for continuous browser microphone access.</div>
+      </section>
+    </div>
+
+    <div class="panelPage" data-page="chat">
+      <section class="card"><div class="sectionTitle"><strong>Conversation</strong></div><div class="chat" id="chat"></div></section>
+    </div>
+
+    <div class="panelPage" data-page="pc">
+      <section class="card" id="quickCard"><div class="sectionTitle"><strong>PC Controls</strong></div><div class="grid"><button data-cmd="look at my screen">Look at screen</button><button data-cmd="take a screenshot">Screenshot</button><button data-cmd="open chrome">Open Chrome</button><button data-cmd="pause media">Pause media</button><button data-cmd="resume media">Resume media</button><button data-cmd="volume up">Volume up</button><button data-cmd="check your system">System status</button><button data-cmd="show targets">Saved targets</button></div><div class="small" style="margin-top:8px">Every desktop JARVIS command is still available through text or voice.</div></section>
+      <section class="card" id="screenCard"><div class="sectionTitle"><strong>PC Screen</strong><div class="row"><button id="refreshScreenBtn">Refresh</button><button id="liveScreenBtn">Live: Off</button></div></div><img class="screen" id="screenImg" alt="PC screenshot preview"><div class="small" id="screenTime"></div></section>
+    </div>
+
+    <div class="panelPage" data-page="more">
+      <section class="card" id="visionCard"><div class="sectionTitle"><strong>Phone Camera → JARVIS Vision</strong></div><div class="small">Back camera is default for objects, OCR and scenes.</div><div class="cameraWrap" style="margin-top:9px"><span class="badge" id="visionBadge">BACK CAMERA</span><video id="visionCamera" autoplay playsinline muted></video></div><div class="grid3" style="margin-top:8px"><button id="openVisionCamBtn">Open</button><button id="switchVisionCamBtn">Switch</button><button id="closeVisionCamBtn">Close</button></div><div class="grid3" style="margin-top:8px"><button data-vision="describe">Describe</button><button data-vision="ocr">Read</button><button data-vision="object">What is this?</button></div><div class="small" id="visionResult" style="margin-top:8px"></div></section>
+      <section class="card" id="filesCard"><div class="sectionTitle"><strong>Files</strong><button id="loadRootsBtn">Browse</button></div><div class="row" id="roots"></div><div class="fileList" id="fileList" style="margin-top:8px"></div><div class="row" style="margin-top:10px"><input type="file" id="uploadFile" class="grow"><button id="uploadBtn">Upload</button></div></section>
+      <section class="card" id="securityCard"><div class="sectionTitle"><strong>Device & Alerts</strong></div><div class="grid"><button id="alertsBtn">Enable alerts</button><button id="stopVoiceBtn">Stop voice</button><button class="danger" id="forgetDeviceBtn">Forget this device</button></div></section>
+    </div>
+  </div>
+</div>
+
+<div class="composer hidden" id="composer"><div class="composerInner"><button class="micToggle" id="micQuickBtn" aria-label="Toggle always listening">◉</button><textarea id="commandText" placeholder="Message JARVIS…"></textarea><button class="primary send" id="sendBtn">➤</button></div></div>
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>
