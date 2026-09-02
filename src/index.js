@@ -1,5 +1,5 @@
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
-const ONLINE_WINDOW_SECONDS = 20;
+const ONLINE_WINDOW_SECONDS = 90;
 
 // Memory fallback lets the Worker deploy before KV is configured.
 // For 24/7 reliability add a Workers KV binding named JARVIS_KV.
@@ -113,6 +113,33 @@ async function queuePop(env, kind) {
   return null;
 }
 
+
+function roomSubsystem(action) {
+  return String(action || "").startsWith("fan_") ? "fan" : "light";
+}
+async function setRoomCommand(env, action, value = null) {
+  const subsystem = roomSubsystem(action);
+  const item = { id: rand(12), action, value, ts: now(), issued_ms: Date.now() };
+  if (env.JARVIS_KV) {
+    await kvPut(env, `cmd:room:${subsystem}`, item, { expirationTtl: 3600 });
+  } else {
+    mem[`room_${subsystem}_cmd`] = item;
+  }
+  return item;
+}
+async function getRoomCommand(env, subsystem) {
+  if (env.JARVIS_KV) return await kvGet(env, `cmd:room:${subsystem}`);
+  return mem[`room_${subsystem}_cmd`] || null;
+}
+async function ackRoomCommand(env, subsystem, ackId) {
+  if (!ackId) return;
+  const cur = await getRoomCommand(env, subsystem);
+  if (cur && safeEqual(cur.id, ackId)) {
+    if (env.JARVIS_KV) await kvDel(env, `cmd:room:${subsystem}`);
+    else mem[`room_${subsystem}_cmd`] = null;
+  }
+}
+
 function roomCmd(text) {
   const t = String(text || "").toLowerCase().replaceAll("'", " ").replace(/\s+/g, " ").trim();
   if (["good night", "going to sleep", "sleep mode", "bedtime"].some(x => t.includes(x))) return [[ ["light_off", null], ["fan_speed", 3] ], "Sleep mode activated."];
@@ -134,7 +161,7 @@ async function api(req, env, url) {
   const p = url.pathname;
 
   if (p === "/api/health" && req.method === "GET") {
-    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.3-cf-no-face-wake", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
+    return j({ ok: true, service: "JARVIS Cloud Core", version: "21.4-cf-room-stable", storage: env.JARVIS_KV ? "kv" : "memory-fallback", configured: {
       owner_password: Boolean(env.JARVIS_OWNER_PASSWORD), device_token: Boolean(env.JARVIS_DEVICE_TOKEN), pc_token: Boolean(env.JARVIS_PC_TOKEN)
     }});
   }
@@ -168,8 +195,8 @@ async function api(req, env, url) {
     const b = await bodyJson(req), a = String(b.action || ""), v = b.value ?? null;
     const allowed = new Set(["light_on","light_off","light_next_mode","light_mode","fan_off","fan_speed"]);
     if (!allowed.has(a)) return j({ok:false,error:"Invalid action"},400);
-    await queuePush(env, "room", {id:rand(8),action:a,value:v,ts:now()});
-    return j({ok:true,queued:true,action:a,value:v});
+    const cmd = await setRoomCommand(env, a, v);
+    return j({ok:true,queued:true,action:a,value:v,command_id:cmd.id,slot:roomSubsystem(a)});
   }
 
   if (p === "/api/command" && req.method === "POST") {
@@ -177,8 +204,9 @@ async function api(req, env, url) {
     const b = await bodyJson(req), text = String(b.text || "").trim();
     const [acts, msg] = roomCmd(text);
     if (acts) {
-      for (const [a,v] of acts) await queuePush(env, "room", {id:rand(8),action:a,value:v,ts:now()});
-      return j({ok:true,reply:msg,route:"cloud-room"});
+      const queued = [];
+      for (const [a,v] of acts) queued.push(await setRoomCommand(env, a, v));
+      return j({ok:true,reply:msg,route:"cloud-room",queued:queued.map(x=>x.id)});
     }
     await queuePush(env, "pc", {id:rand(8),text,ts:now()});
     const pc = await getPcState(env), online = Boolean(now() - Number(pc.last_seen || 0) < ONLINE_WINDOW_SECONDS);
@@ -188,7 +216,18 @@ async function api(req, env, url) {
 
   if (p === "/api/device/poll" && req.method === "GET") {
     if (!deviceAuth(req, env)) return j({ok:false,error:"Unauthorized"},401);
-    return j({ok:true,command:await queuePop(env,"room")});
+    const light = await getRoomCommand(env, "light");
+    const fan = await getRoomCommand(env, "fan");
+    return j({
+      ok:true,
+      light_id: light?.id || "",
+      light_action: light?.action || "",
+      light_value: light?.value ?? 0,
+      fan_id: fan?.id || "",
+      fan_action: fan?.action || "",
+      fan_value: fan?.value ?? 0,
+      server_time: now()
+    });
   }
 
   if (p === "/api/device/status" && req.method === "POST") {
@@ -196,6 +235,8 @@ async function api(req, env, url) {
     const b = await bodyJson(req), st = await getRoomState(env);
     for (const k of ["light","light_mode","fan","fan_speed"]) if (k in b) st[k] = b[k];
     st.last_seen = now(); st.online = true; await putRoomState(env, st);
+    await ackRoomCommand(env, "light", String(b.ack_light_id || ""));
+    await ackRoomCommand(env, "fan", String(b.ack_fan_id || ""));
     return j({ok:true});
   }
 
